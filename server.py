@@ -9,12 +9,17 @@ from dotenv import load_dotenv, find_dotenv
 from flask import Flask
 from flask import jsonify
 from flask import redirect
+from flask import request
+from flask import flash
+# Global storage, remove when games are persistently stored elsewhere?
+from flask import g
 from flask import render_template
 from flask import session
 from flask import url_for
 from authlib.integrations.flask_client import OAuth
-from six.moves.urllib.parse import urlencode
+from urllib.parse import urlencode
 
+import forms
 import constants
 
 ENV_FILE = find_dotenv()
@@ -104,6 +109,32 @@ def dashboard():
     return render_template('dashboard.html',
                            userinfo=session[constants.PROFILE_KEY],
                            userinfo_pretty=json.dumps(session[constants.JWT_PAYLOAD], indent=4))
+
+
+@app.route('/party/new', methods=['GET', 'POST'])
+@requires_auth
+def newParty():
+    form = forms.NewGame(request.form)
+    if request.method == 'POST' and form.validate():
+        flash("A new game (named %s) has been created. Please join manually." % form.gamename.data)
+        games = { "name": form.gamename.data, "active_players": [ session[constants.JWT_PAYLOAD]['nickname'] ]}
+        return redirect('/party/join')
+    return render_template('new-party.html', userinfo_pretty=session[constants.JWT_PAYLOAD], form=form)    
+
+
+@app.route('/party/join', methods=['GET', 'POST'])
+@requires_auth
+def joinParty():
+    return render_template('list-party.html', games="games")    
+
+
+@app.route('/games')
+@requires_auth
+def newGame():
+    return render_template('new-game.html', userinfo_pretty=json.dumps(session[constants.JWT_PAYLOAD]))
+
+
+
 
 
 if __name__ == "__main__":
