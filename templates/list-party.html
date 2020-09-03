@@ -7,9 +7,32 @@
 {% block content %}
 <div class="container">
     <div class="">
-        <div class="">
-            {{ games }}
-        </div>
+        <table>
+            <tr>
+                <th>
+                    Game name
+                </th>
+                <th>
+                    Players
+                </th>
+                <th>
+                    Join?
+                </th>
+            </tr>
+            {% for game in games %}
+            <tr>
+                <td>
+                    {{ game.name }}
+                </td>
+                <td>
+                    {{ game.players }}
+                </td>
+                <td>
+                    {{ game.join_link }}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
     </div>
 </div>
 {% endblock %}

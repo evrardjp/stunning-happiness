@@ -14,7 +14,7 @@
                 <img class="pure-img-responsive" style="max-height:18px" src="{{ session['profile']['picture']}}"/>
             </li>
             <li class="pure-menu-item">
-                <span>{{ session['profile']['name'] }}</span>
+                <a href="{{ url_for('dashboard') }}">{{ session['profile']['name'] }}</a>
             </li>
             <li class="pure-menu-item">
                 <a class="pure-button pure-button-primary" id="qsLogoutBtn" href="/logout">Log Out</a>

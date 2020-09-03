@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    # for local dev, expose ports
+    ports:
+      - 6379:6379
+  # webapp:
+  #   image: stunning-happiness:latest
+  #   container_name: stunning-happiness
+  #   restart: always
+  #   environment:
+  #     AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID}
+  #     AUTH0_DOMAIN: ${AUTH0_DOMAIN}
+  #     AUTH0_CLIENT_SECRET: ${AUTH0_CLIENT_SECRET}
+  #     AUTH0_CALLBACK_URL: ${AUTH0_CALLBACK_URL}
+

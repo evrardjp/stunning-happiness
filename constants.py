@@ -8,4 +8,4 @@ AUTH0_AUDIENCE = 'AUTH0_AUDIENCE'
 PROFILE_KEY = 'profile'
 SECRET_KEY = 'ThisIsTheSecretKey'
 JWT_PAYLOAD = 'jwt_payload'
-
+REDIS_URL = 'REDIS_URL'
