@@ -9,3 +9,4 @@ PROFILE_KEY = 'profile'
 SECRET_KEY = 'ThisIsTheSecretKey'
 JWT_PAYLOAD = 'jwt_payload'
 REDIS_URL = 'REDIS_URL'
+MAX_REDIST_RECORDS_PER_LIST = 100

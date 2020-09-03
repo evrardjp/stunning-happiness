@@ -11,8 +11,8 @@
             For full transparency, here is the information I got from github:
             <pre>{{userinfo_pretty}}</pre>
             <pre>{{userinfo}}</pre>
-            <a class="pure-button pure-button-primary" href="/party/new">Create game</a>
-            <a class="pure-button pure-button-primary" href="/party/join">Join game</a>
+            <a class="pure-button pure-button-primary" href="{{ url_for('create_party')}}">Create game</a>
+            <a class="pure-button pure-button-primary" href="{{ url_for('list_parties') }}">Join game</a>
         </div>
 </div>
 {% endblock %}

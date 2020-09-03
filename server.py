@@ -3,6 +3,8 @@
 from functools import wraps
 import json
 from os import environ as env
+from collections import namedtuple
+
 from werkzeug.exceptions import HTTPException
 
 from dotenv import load_dotenv, find_dotenv
@@ -19,7 +21,6 @@ from flask import url_for
 from authlib.integrations.flask_client import OAuth
 from urllib.parse import urlencode
 from redis import from_url as redis_connection
-import pickle
 
 import forms
 import constants
@@ -128,38 +129,50 @@ def dashboard():
 
 @app.route('/party/new', methods=['GET', 'POST'])
 @requires_auth
-def newParty():
+def create_party():
     form = forms.NewGame(request.form)
     if request.method == 'POST' and form.validate():
-        # everything is stored in bytes in redis
-        gamename = form.gamename.data.encode()
+        # This needs to be refactored to separate view from controller
+        gamename = form.gamename.data.encode() # everything is stored in bytes in redis
         # check if that name already exists in db before going further.
-        if (existing_party := redis_conn().get(gamename)) is not None:
-            if pickle.loads(existing_party).game_over:
+        if (existing_party := redis_conn().get(b"party-%s" % gamename)) is not None:
+            if games.Party.deserialize(existing_party).game_over:
                 flash("Re-creating a game (named %s). Click now on the right game to join the game." % form.gamename.data)
             else:
                 flash("A game named %s already exists. Redirecting you to join page...." % form.gamename.data)
-                return redirect('/party/join')
+                return redirect('/party/list')
         else:
             flash("Creating a game (named %s). Please join manually." % form.gamename.data)
-        party = games.Party(gamename, session[constants.JWT_PAYLOAD]['nickname'])
+        
+        party = games.Party(gamename)
+        party.add_player(session[constants.JWT_PAYLOAD]['nickname'])
         # pickle is (most likely?) safe, as we can assume github nicknames are going through validations
-        redis_conn().set(gamename, party.pickle())
-        return redirect('/party/join')
+        redis_conn().set(b"party-%s" % gamename, party.serialize())
+        return redirect('/party/list')
     return render_template('new-party.html', userinfo_pretty=session[constants.JWT_PAYLOAD], form=form)    
 
 
-@app.route('/party/join', methods=['GET', 'POST'])
+@app.route('/party/list', methods=['GET'])
 @requires_auth
-def joinParty():
-    # redis_conn().get()
-    return render_template('list-party.html', games="games")    
+def list_parties():
+    _, games_names = redis_conn().scan(match='party-*', count=constants.MAX_REDIST_RECORDS_PER_LIST)
+    games_details = redis_conn().mget(games_names)
+    gamelist = list(map(games.Party.deserialize, games_details))
+    
+    roster = []
+    for game in gamelist:
+        roster.append({
+            "name" : bytes.decode(game.party_name),
+            "players": list(game.players),
+            "link": "/games/ideasthesia/%s" % game.uuid,
+        })
+    return render_template('list-party.html', gameroster=roster)    
 
 
-@app.route('/games')
+@app.route('/games/ideasthesia/<uuid:gameid>')
 @requires_auth
-def newGame():
-    return render_template('new-game.html', userinfo_pretty=json.dumps(session[constants.JWT_PAYLOAD]))
+def ideasthesia_game(gameid):
+    return render_template('ideasthesia-game.html')
 
 
 if __name__ == "__main__":

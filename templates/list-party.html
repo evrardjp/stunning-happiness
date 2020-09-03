@@ -6,33 +6,41 @@
 
 {% block content %}
 <div class="container">
-    <div class="">
-        <table>
-            <tr>
-                <th>
-                    Game name
-                </th>
-                <th>
-                    Players
-                </th>
-                <th>
-                    Join?
-                </th>
-            </tr>
-            {% for game in games %}
-            <tr>
-                <td>
-                    {{ game.name }}
-                </td>
-                <td>
-                    {{ game.players }}
-                </td>
-                <td>
-                    {{ game.join_link }}
-                </td>
-            </tr>
-            {% endfor %}
+        <table class="pure-table">
+            <thead>
+                <tr>
+                    <th>
+                        Game name
+                    </th>
+                    <th>
+                        # players
+                    </th>                    
+                    <th>
+                        Players
+                    </th>
+                    <th>
+                        Join?
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for game in gameroster %}
+                <tr>
+                    <td>
+                        {{ game['name'] }}
+                    </td>
+                    <td>
+                        {{ game['players'] | count }}
+                    </td>
+                    <td>
+                        {% for player in game['players'] %}{{ player }}{% if not loop.last %},{% endif %}{% endfor %}
+                    </td>                    
+                    <td>
+                        <a class="pure-button button-secondary" href="{{ game['link'] | e }}">Join!</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
-    </div>
 </div>
 {% endblock %}
